@@ -176,6 +176,9 @@ Cross-module contracts: [docs/agent-contracts.md](docs/agent-contracts.md).
 - CSRF protection is on for forms and for `fetch` calls, which read tokens from meta tags.
 - Uploads are validated by extension, size and real detected content; storage names are generated
   UUIDs; files are outside the static resource path and cannot be fetched by URL.
+- Responses carry a Content-Security-Policy, Referrer-Policy and Permissions-Policy. Sign-in is
+  limited to 10 attempts per client address per 5 minutes (in-memory, single node). Behind a
+  reverse proxy, set `FORWARD_HEADERS_STRATEGY=framework` so the real client address is used.
 - Ownership is enforced in the service layer, not only in controllers.
 - Both SQL (parameterised JPA) and HTML (Thymeleaf escaping) injection paths are covered.
 - Gemini output is validated; unknown citations are dropped. Uploaded text is delimited and

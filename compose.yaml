@@ -15,13 +15,15 @@ services:
       interval: 5s
       timeout: 5s
       retries: 12
-    ports:
-      # Optional: exposes PostgreSQL for local tooling. Remove in production.
-      - "127.0.0.1:5432:5432"
+    # PostgreSQL is only reachable from the app container. To use local tooling,
+    # add a "ports" entry such as "127.0.0.1:5432:5432" in compose.override.yaml.
 
   app:
     build: .
     restart: unless-stopped
+    stop_grace_period: 30s
+    security_opt:
+      - no-new-privileges:true
     depends_on:
       db:
         condition: service_healthy
@@ -35,6 +37,7 @@ services:
       APP_MAX_UPLOAD_SIZE_MB: ${APP_MAX_UPLOAD_SIZE_MB:-25}
       APP_STORAGE_LOCATION: /app/data/uploads
       SESSION_COOKIE_SECURE: ${SESSION_COOKIE_SECURE:-false}
+      FORWARD_HEADERS_STRATEGY: ${FORWARD_HEADERS_STRATEGY:-none}
       SERVER_PORT: 8080
     ports:
       - "${SERVER_PORT:-8080}:8080"

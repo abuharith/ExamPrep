@@ -1,5 +1,6 @@
 package com.examprep.security;
 
+import java.time.Clock;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -7,6 +8,9 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
+import org.springframework.security.web.header.writers.StaticHeadersWriter;
 
 @Configuration
 @EnableWebSecurity
@@ -39,6 +43,20 @@ public class SecurityConfig {
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
                         .deleteCookies("JSESSIONID"))
+                .addFilterBefore(new LoginThrottleFilter(10, 5 * 60 * 1000L, Clock.systemUTC()),
+                        UsernamePasswordAuthenticationFilter.class)
+                .headers(headers -> headers
+                        // Templates carry a few inline data blocks and styles, hence 'unsafe-inline'.
+                        // Everything else is locked to this origin.
+                        .contentSecurityPolicy(csp -> csp.policyDirectives(
+                                "default-src 'self'; script-src 'self' 'unsafe-inline'; "
+                                        + "style-src 'self' 'unsafe-inline'; img-src 'self' data:; "
+                                        + "object-src 'none'; base-uri 'self'; form-action 'self'; "
+                                        + "frame-ancestors 'none'"))
+                        .referrerPolicy(referrer -> referrer.policy(
+                                ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN))
+                        .addHeaderWriter(new StaticHeadersWriter("Permissions-Policy",
+                                "camera=(), microphone=(), geolocation=(), payment=()")))
                 .exceptionHandling(handling -> handling.accessDeniedPage("/access-denied"))
                 .sessionManagement(session -> session.sessionFixation(fixation -> fixation.changeSessionId()));
         return http.build();

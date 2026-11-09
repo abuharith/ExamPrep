@@ -2,8 +2,12 @@ name: Build and test
 
 on:
   push:
-    branches: ["**"]
+    branches: [main]
   pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -37,3 +41,19 @@ jobs:
           name: surefire-reports
           path: target/surefire-reports/
           if-no-files-found: ignore
+
+  docker:
+    name: Docker image builds
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    needs: build
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+
+      - name: Validate the Compose file
+        run: POSTGRES_PASSWORD=ci-placeholder docker compose config --quiet
+
+      - name: Build the application image
+        run: docker build -t examprep:ci .

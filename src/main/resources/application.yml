@@ -24,13 +24,17 @@ spring:
       max-file-size: ${APP_MAX_UPLOAD_SIZE_MB:25}MB
       max-request-size: ${APP_MAX_UPLOAD_SIZE_MB:25}MB
   thymeleaf:
-    cache: false
+    # Cache templates in production; set THYMELEAF_CACHE=false for local template editing.
+    cache: ${THYMELEAF_CACHE:true}
   messages:
     basename: messages
     encoding: UTF-8
 
 server:
   port: ${SERVER_PORT:8080}
+  shutdown: graceful
+  # Set to 'framework' when running behind a TLS-terminating reverse proxy.
+  forward-headers-strategy: ${FORWARD_HEADERS_STRATEGY:none}
   servlet:
     session:
       timeout: 60m
