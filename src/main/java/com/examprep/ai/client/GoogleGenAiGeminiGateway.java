@@ -66,7 +66,8 @@ public class GoogleGenAiGeminiGateway implements GeminiGateway {
                 : lastFailure;
     }
 
-    private String callModel(GeminiPrompt prompt) {
+    /** Package-private so tests can replace the network call and exercise the retry policy. */
+    String callModel(GeminiPrompt prompt) {
         try {
             GenerateContentConfig requestConfig = GenerateContentConfig.builder()
                     .systemInstruction(Content.fromParts(Part.fromText(prompt.systemInstruction())))
