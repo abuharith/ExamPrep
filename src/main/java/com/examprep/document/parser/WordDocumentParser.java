@@ -22,11 +22,10 @@ import org.springframework.stereotype.Component;
  * numbers, so references name the section heading instead of inventing a page.
  */
 @Component
-public class WordDocumentParser implements DocumentParser {
+public class WordDocumentParser extends AbstractDocumentParser {
 
-    @Override
-    public boolean supports(String extension) {
-        return "docx".equals(extension) || "doc".equals(extension);
+    public WordDocumentParser() {
+        super("docx", "doc");
     }
 
     @Override

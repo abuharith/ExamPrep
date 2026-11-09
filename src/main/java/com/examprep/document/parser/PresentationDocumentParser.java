@@ -23,11 +23,10 @@ import org.springframework.stereotype.Component;
  * so the study package can cite "Slide 4" truthfully.
  */
 @Component
-public class PresentationDocumentParser implements DocumentParser {
+public class PresentationDocumentParser extends AbstractDocumentParser {
 
-    @Override
-    public boolean supports(String extension) {
-        return "pptx".equals(extension) || "ppt".equals(extension);
+    public PresentationDocumentParser() {
+        super("pptx", "ppt");
     }
 
     @Override

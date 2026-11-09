@@ -20,16 +20,12 @@ import org.springframework.stereotype.Component;
  * page boundaries, so chunks are cited by part number rather than a fabricated page.
  */
 @Component
-public class StructuredTextParser implements DocumentParser {
+public class StructuredTextParser extends AbstractDocumentParser {
 
     private static final int MAX_EXTRACTED_CHARS = 4_000_000;
 
-    @Override
-    public boolean supports(String extension) {
-        return switch (extension) {
-            case "txt", "md", "markdown", "rtf", "odt", "odp" -> true;
-            default -> false;
-        };
+    public StructuredTextParser() {
+        super("txt", "md", "markdown", "rtf", "odt", "odp");
     }
 
     @Override

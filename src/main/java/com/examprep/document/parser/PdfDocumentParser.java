@@ -18,13 +18,12 @@ import org.springframework.stereotype.Component;
  * rather than invented section numbers. Scanned PDFs are detected and reported clearly.
  */
 @Component
-public class PdfDocumentParser implements DocumentParser {
+public class PdfDocumentParser extends AbstractDocumentParser {
 
     private static final int MIN_USABLE_CHARACTERS = 120;
 
-    @Override
-    public boolean supports(String extension) {
-        return "pdf".equals(extension);
+    public PdfDocumentParser() {
+        super("pdf");
     }
 
     @Override
