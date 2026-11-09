@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Something went wrong')}"></head>
+<body>
+<header th:replace="~{layout/base :: nav}"></header>
+
+<main id="main" class="container page">
+    <div class="error-page">
+        <p class="eyebrow" th:text="${'Error ' + (status ?: 500)}">Error 500</p>
+        <h1 th:text="${heading} ?: 'Something went wrong'">Something went wrong</h1>
+        <p class="lede" th:text="${message} ?: 'The page could not be completed. Please try again.'">
+            The page could not be completed.
+        </p>
+        <div class="page-actions">
+            <a class="btn btn-primary" th:href="@{/dashboard}" th:if="${studentName != null}">Back to dashboard</a>
+            <a class="btn btn-primary" th:href="@{/}" th:if="${studentName == null}">Back to ExamPrep</a>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/base :: footer}"></footer>
+</body>
+</html>

@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Mock examination')}"></head>
+<body>
+<header th:replace="~{layout/base :: nav}"></header>
+
+<main id="main" class="container page exam-page">
+    <p class="back-link"><a th:href="@{/study-packs/{id}(id=${pack.id})}">← Back to study package</a></p>
+
+    <div class="exam-header">
+        <div>
+            <p class="eyebrow" th:text="${pack.title}">Study package</p>
+            <h1>Mock examination</h1>
+            <p class="muted">
+                <span th:text="${#lists.size(questions) + ' questions'}">10 questions</span>
+                <span aria-hidden="true">·</span>
+                <span th:text="${pack.mockDurationMinutes + ' minutes'}">30 minutes</span>
+                <span aria-hidden="true">·</span>
+                <span>answers are scored when you submit</span>
+            </p>
+        </div>
+        <div class="exam-status">
+            <div class="exam-timer" id="exam-timer" aria-live="polite">--:--</div>
+            <button class="btn btn-primary" id="exam-submit" type="button">Submit examination</button>
+        </div>
+    </div>
+
+    <div class="exam-layout">
+        <nav class="exam-nav" aria-label="Question navigation">
+            <p class="rail-title">Questions</p>
+            <ol class="exam-nav-list" id="exam-nav-list"></ol>
+            <p class="exam-nav-legend"><span class="dot dot-answered"></span> answered</p>
+        </nav>
+
+        <section class="exam-body" aria-live="polite">
+            <article class="question-card" id="question-card">
+                <p class="practice-meta" id="question-meta">Question 1</p>
+                <h2 id="question-prompt">Loading question…</h2>
+                <div class="exam-options" id="exam-options" role="radiogroup" aria-labelledby="question-prompt"></div>
+                <div class="exam-actions">
+                    <button class="btn btn-secondary" id="exam-prev" type="button">Previous</button>
+                    <button class="btn btn-secondary" id="exam-next" type="button">Next</button>
+                </div>
+            </article>
+
+            <div class="notice notice-error" id="exam-error" role="alert" hidden></div>
+            <p class="field-hint">The correct answers and explanations appear on the results page after you submit.</p>
+        </section>
+    </div>
+
+    <noscript>
+        <section class="panel">
+            <h2>Examination</h2>
+            <p>JavaScript is disabled, so the interactive timer and question navigation are unavailable. You can
+                still answer every question below and submit the examination.</p>
+            <form th:action="@{/study-packs/{id}/exam(id=${pack.id})}" method="post">
+                <fieldset class="question-card" th:each="question, iteration : ${questions}"
+                          th:attr="data-question-id=${question.id}">
+                    <legend th:text="${'Question ' + iteration.count + ': ' + question.prompt}">Question</legend>
+                    <label class="exam-option" th:each="option : ${question.options}">
+                        <input type="radio" th:name="${'answer_' + question.id}" th:value="${option}">
+                        <span th:text="${option}">Option</span>
+                    </label>
+                    <label class="exam-option" th:if="${#lists.isEmpty(question.options)}">
+                        <span class="visually-hidden">Your answer</span>
+                        <input type="text" th:name="${'answer_' + question.id}" class="input">
+                    </label>
+                </fieldset>
+                <button class="btn btn-primary" type="submit">Submit examination</button>
+            </form>
+        </section>
+    </noscript>
+
+    <script th:inline="javascript">
+        window.examConfig = {
+            quizUrl: /*[[@{/api/study-packs/{id}/quiz(id=${pack.id})}]]*/ '',
+            resultBaseUrl: /*[[@{/study-packs/{id}/attempts(id=${pack.id})}]]*/ '',
+            durationMinutes: /*[[${pack.mockDurationMinutes}]]*/ 30,
+            questions: /*[[${questions}]]*/ []
+        };
+    </script>
+</main>
+
+<footer th:replace="~{layout/base :: footer}"></footer>
+<script th:src="@{/js/app.js}"></script>
+<script th:src="@{/js/exam.js}"></script>
+</body>
+</html>

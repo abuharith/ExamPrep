@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head(${pack.title})}"></head>
+<body>
+<header th:replace="~{layout/base :: nav}"></header>
+
+<main id="main" class="container page">
+    <div th:replace="~{layout/base :: aiBanner}"></div>
+
+    <p class="back-link"><a th:href="@{/dashboard}">← Dashboard</a></p>
+
+    <div class="page-head study-head">
+        <div>
+            <p class="eyebrow" th:text="${'Generated from ' + pack.documentFilename}">Generated from lecture.pdf</p>
+            <h1 th:text="${pack.title}">Study package</h1>
+            <p class="muted">
+                <span th:text="${pack.preferences.academicLevel}">Undergraduate</span>
+                <span aria-hidden="true">·</span>
+                <span th:text="${pack.preferences.language}">English</span>
+                <span aria-hidden="true">·</span>
+                <span th:text="${'Generated ' + @fmt.date(pack.createdAt)}">Generated 1 Jan 2026</span>
+                <span th:if="${pack.preferences.examDate != null}">
+                    <span aria-hidden="true">·</span>
+                    <span th:text="${'Exam on ' + pack.preferences.examDate}">Exam on 1 Jan 2027</span>
+                </span>
+            </p>
+        </div>
+        <div class="page-actions">
+            <a class="btn btn-secondary btn-sm" th:href="@{/study-packs/{id}/flashcards(id=${pack.id})}">Flashcards</a>
+            <a class="btn btn-primary btn-sm" th:href="@{/study-packs/{id}/exam(id=${pack.id})}">Mock examination</a>
+        </div>
+    </div>
+
+    <div class="study-layout">
+        <nav class="study-rail" aria-label="Study package sections">
+            <p class="rail-title">In this package</p>
+            <a href="#overview">Overview</a>
+            <a href="#topics">Topics</a>
+            <a href="#notes">Revision notes</a>
+            <a href="#definitions">Definitions</a>
+            <a href="#formulas">Formulas and key facts</a>
+            <a href="#practice">Practice questions</a>
+            <div class="rail-divider"></div>
+            <p class="rail-title">Study tools</p>
+            <a th:href="@{/study-packs/{id}/flashcards(id=${pack.id})}">
+                Flashcards <span class="rail-count" th:text="${#lists.size(pack.flashcards)}">12</span>
+            </a>
+            <a th:href="@{/study-packs/{id}/exam(id=${pack.id})}">
+                Mock examination <span class="rail-count" th:text="${pack.mockQuestionCount}">10</span>
+            </a>
+            <a th:href="@{/study-packs/{id}/tutor(id=${pack.id})}">AI tutor</a>
+        </nav>
+
+        <div class="study-body">
+            <section class="study-section" id="overview">
+                <h2>Overview</h2>
+                <p class="overview-intro" th:text="${pack.overview.introduction}">Introduction</p>
+                <div class="callout">
+                    <h3>Summary</h3>
+                    <p th:text="${pack.overview.summary}">Summary</p>
+                </div>
+                <div class="grid grid-2">
+                    <div>
+                        <h3>Learning objectives</h3>
+                        <ul class="numbered-list" th:if="${!#lists.isEmpty(pack.overview.learningObjectives)}">
+                            <li th:each="objective : ${pack.overview.learningObjectives}" th:text="${objective}">Objective</li>
+                        </ul>
+                        <p class="muted" th:if="${#lists.isEmpty(pack.overview.learningObjectives)}">None recorded.</p>
+                    </div>
+                    <div>
+                        <h3>Important areas to revise</h3>
+                        <ul class="bullet-list" th:if="${!#lists.isEmpty(pack.overview.revisionFocus)}">
+                            <li th:each="focus : ${pack.overview.revisionFocus}" th:text="${focus}">Focus</li>
+                        </ul>
+                        <p class="muted" th:if="${#lists.isEmpty(pack.overview.revisionFocus)}">None recorded.</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="study-section" id="topics">
+                <h2>Topics</h2>
+                <article class="topic" th:each="topic : ${pack.topics}">
+                    <h3 th:text="${topic.name}">Topic</h3>
+                    <p th:text="${topic.explanation}">Explanation</p>
+                    <div th:if="${!#lists.isEmpty(topic.keyConcepts)}">
+                        <p class="label-plain">Key concepts</p>
+                        <ul class="chip-list">
+                            <li class="chip" th:each="concept : ${topic.keyConcepts}" th:text="${concept}">Concept</li>
+                        </ul>
+                    </div>
+                    <p class="source-line" th:if="${!#lists.isEmpty(topic.sourceReferences)}">
+                        <span class="label-plain">Sources:</span>
+                        <span th:each="ref, stat : ${topic.sourceReferences}">
+                            <span th:text="${ref}">Page 1</span><span th:if="${!stat.last}">, </span>
+                        </span>
+                    </p>
+                </article>
+            </section>
+
+            <section class="study-section" id="notes">
+                <h2>Revision notes</h2>
+                <article class="notes-section" th:each="section : ${pack.revisionNotes}">
+                    <h3 th:text="${section.heading}">Heading</h3>
+                    <p class="notes-body" th:text="${section.body}">Notes</p>
+                    <p class="source-line" th:if="${!#lists.isEmpty(section.sourceReferences)}">
+                        <span class="label-plain">Sources:</span>
+                        <span th:each="ref, stat : ${section.sourceReferences}">
+                            <span th:text="${ref}">Page 1</span><span th:if="${!stat.last}">, </span>
+                        </span>
+                    </p>
+                </article>
+            </section>
+
+            <section class="study-section" id="definitions">
+                <h2>Definitions</h2>
+                <div class="empty-inline" th:if="${#lists.isEmpty(pack.definitions)}">
+                    No glossary terms were identified in this material.
+                </div>
+                <dl class="definition-list" th:unless="${#lists.isEmpty(pack.definitions)}">
+                    <div class="definition" th:each="definition : ${pack.definitions}">
+                        <dt th:text="${definition.term}">Term</dt>
+                        <dd>
+                            <p th:text="${definition.definition}">Definition</p>
+                            <p class="source-line" th:if="${definition.sourceReference != null}"
+                               th:text="${'Source: ' + definition.sourceReference}">Source: Page 2</p>
+                        </dd>
+                    </div>
+                </dl>
+            </section>
+
+            <section class="study-section" id="formulas">
+                <h2>Formulas and key facts</h2>
+                <div class="empty-inline" th:if="${#lists.isEmpty(pack.keyFacts)}">
+                    No formulas or key facts were identified in this material.
+                </div>
+                <div class="fact-list" th:unless="${#lists.isEmpty(pack.keyFacts)}">
+                    <article class="fact" th:each="fact : ${pack.keyFacts}">
+                        <p class="fact-label">
+                            <span th:text="${fact.label}">Label</span>
+                            <span class="tag" th:if="${fact.formula}">Formula</span>
+                        </p>
+                        <p class="fact-detail" th:text="${fact.detail}">Detail</p>
+                        <p class="source-line" th:if="${fact.sourceReference != null}"
+                           th:text="${'Source: ' + fact.sourceReference}">Source: Page 4</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="study-section" id="practice">
+                <div class="section-head">
+                    <h2>Practice questions</h2>
+                    <span class="muted" th:text="${#lists.size(pack.practiceQuestions) + ' questions'}">8 questions</span>
+                </div>
+                <div class="practice-list">
+                    <article class="practice-item" th:each="question, iteration : ${pack.practiceQuestions}"
+                             th:attr="data-question-id=${question.id}">
+                        <p class="practice-meta">
+                            <span th:text="${@fmt.label(question.type.name())}">Multiple choice</span>
+                            <span aria-hidden="true">·</span>
+                            <span th:text="${@fmt.label(question.difficulty.name())}">Medium</span>
+                            <span aria-hidden="true">·</span>
+                            <span th:text="${'Question ' + iteration.count}">Question 1</span>
+                        </p>
+                        <h3 th:text="${question.prompt}">Question</h3>
+                        <ul class="option-list" th:if="${!#lists.isEmpty(question.options)}">
+                            <li th:each="option : ${question.options}" th:text="${option}">Option</li>
+                        </ul>
+                        <button class="btn btn-secondary btn-sm reveal-answer" type="button"
+                                th:attr="data-reveal-url=@{/api/study-packs/{id}/questions/{qid}/reveal(id=${pack.id},qid=${question.id})}">
+                            Show answer
+                        </button>
+                        <div class="answer-panel" hidden aria-live="polite"></div>
+                        <p class="source-line" th:if="${question.sourceReference != null}"
+                           th:text="${'Source: ' + question.sourceReference}">Source: Page 3</p>
+                    </article>
+                </div>
+            </section>
+
+            <section class="study-section" id="history">
+                <h2>Your attempts</h2>
+                <div class="empty-inline" th:if="${#lists.isEmpty(attempts)}">
+                    You have not submitted an assessment for this package yet.
+                </div>
+                <div class="table-wrap" th:unless="${#lists.isEmpty(attempts)}">
+                    <table class="data">
+                        <thead>
+                        <tr>
+                            <th scope="col">Assessment</th>
+                            <th scope="col">Score</th>
+                            <th scope="col">Time</th>
+                            <th scope="col">Submitted</th>
+                            <th scope="col"><span class="visually-hidden">Review</span></th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        <tr th:each="attempt : ${attempts}">
+                            <td th:text="${attempt.mode == 'MOCK' ? 'Mock examination' : 'Practice'}">Mock</td>
+                            <td th:text="${attempt.percentage + '% (' + attempt.score + '/' + attempt.totalQuestions + ')'}">80%</td>
+                            <td th:text="${@fmt.duration(attempt.durationSeconds)}">12 min</td>
+                            <td th:text="${@fmt.dateTime(attempt.submittedAt)}">9 Nov 2026</td>
+                            <td class="cell-action">
+                                <a class="text-link"
+                                   th:href="@{/study-packs/{id}/attempts/{attempt}(id=${pack.id},attempt=${attempt.id})}">Review</a>
+                            </td>
+                        </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <div class="danger-zone">
+                <div>
+                    <h3>Delete this study package</h3>
+                    <p class="muted">Removes the generated notes, flashcards, questions and attempts. The source
+                        document is kept.</p>
+                </div>
+                <form th:action="@{/study-packs/{id}/delete(id=${pack.id})}" method="post"
+                      data-confirm="Delete this study package and all of its attempts?">
+                    <button class="btn btn-danger btn-sm" type="submit">Delete package</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</main>
+
+<footer th:replace="~{layout/base :: footer}"></footer>
+<script th:src="@{/js/app.js}"></script>
+<script th:src="@{/js/practice.js}"></script>
+</body>
+</html>

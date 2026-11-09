@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Sign in')}"></head>
+<body>
+<header th:replace="~{layout/base :: nav}"></header>
+
+<main id="main" class="container auth-main">
+    <div class="auth-layout">
+        <section class="auth-card">
+            <p class="eyebrow">Welcome back</p>
+            <h1>Sign in to ExamPrep</h1>
+            <p class="muted">Continue with the study packages and examination results saved to your account.</p>
+
+            <div class="notice notice-success" role="status" th:if="${successMessage}" th:text="${successMessage}"></div>
+            <div class="notice notice-error" role="alert" th:if="${param.error}">
+                That email and password combination was not recognised.
+            </div>
+
+            <form th:action="@{/login}" method="post" class="form">
+                <div class="field">
+                    <label for="email">Email address</label>
+                    <input id="email" name="email" type="email" autocomplete="email" required autofocus
+                           placeholder="you@university.edu">
+                </div>
+                <div class="field">
+                    <label for="password">Password</label>
+                    <input id="password" name="password" type="password" autocomplete="current-password" required
+                           placeholder="Your password">
+                </div>
+                <button class="btn btn-primary btn-block" type="submit">Sign in</button>
+            </form>
+
+            <p class="auth-switch">New to ExamPrep?
+                <a th:href="@{/register}">Create an account</a>
+            </p>
+        </section>
+        <aside class="auth-aside">
+            <h2>Your study workspace</h2>
+            <ul class="plain-list">
+                <li>Revision notes generated from your own lecture material</li>
+                <li>Flashcards and practice questions with explanations</li>
+                <li>Timed mock examinations with automatic scoring</li>
+                <li>A tutor that answers from your uploaded documents</li>
+            </ul>
+            <p class="auth-aside-note">Uploaded text is sent to Google's Gemini API to generate study resources.
+                See the <a th:href="@{/privacy}">privacy notice</a>.</p>
+        </aside>
+    </div>
+</main>
+
+<footer th:replace="~{layout/base :: footer}"></footer>
+</body>
+</html>

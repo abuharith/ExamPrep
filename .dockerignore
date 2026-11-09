@@ -1,0 +1,15 @@
+.git
+.gitignore
+.env
+.env.*
+!.env.example
+target
+data
+pgdata
+*.log
+logs
+.idea
+.vscode
+.DS_Store
+README.md
+docs

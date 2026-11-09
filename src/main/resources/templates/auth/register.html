@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Create your account')}"></head>
+<body>
+<header th:replace="~{layout/base :: nav}"></header>
+
+<main id="main" class="container auth-main">
+    <div class="auth-layout">
+        <section class="auth-card">
+            <p class="eyebrow">Get started</p>
+            <h1>Create your ExamPrep account</h1>
+            <p class="muted">Your documents and study packages are private to your account.</p>
+
+            <form th:action="@{/register}" th:object="${form}" method="post" class="form" novalidate>
+                <div class="field">
+                    <label for="fullName">Full name</label>
+                    <input id="fullName" type="text" th:field="*{fullName}" autocomplete="name" required
+                           placeholder="Alex Morgan" aria-describedby="fullName-error">
+                    <p class="field-error" id="fullName-error" th:if="${#fields.hasErrors('fullName')}"
+                       th:errors="*{fullName}">Enter your name.</p>
+                </div>
+                <div class="field">
+                    <label for="email">Email address</label>
+                    <input id="email" type="email" th:field="*{email}" autocomplete="email" required
+                           placeholder="you@university.edu" aria-describedby="email-error">
+                    <p class="field-error" id="email-error" th:if="${#fields.hasErrors('email')}"
+                       th:errors="*{email}">Enter a valid email.</p>
+                </div>
+                <div class="field">
+                    <label for="password">Password</label>
+                    <input id="password" type="password" th:field="*{password}" autocomplete="new-password" required
+                           placeholder="At least 8 characters" aria-describedby="password-hint password-error">
+                    <p class="field-hint" id="password-hint">Use 8 to 72 characters. Passwords are stored with BCrypt.</p>
+                    <p class="field-error" id="password-error" th:if="${#fields.hasErrors('password')}"
+                       th:errors="*{password}">Choose a longer password.</p>
+                </div>
+                <button class="btn btn-primary btn-block" type="submit">Create account</button>
+            </form>
+
+            <p class="auth-switch">Already registered?
+                <a th:href="@{/login}">Sign in</a>
+            </p>
+        </section>
+        <aside class="auth-aside">
+            <h2>What you can do</h2>
+            <ul class="plain-list">
+                <li>Upload up to 25 MB per document</li>
+                <li>Generate a complete study package in one pass</li>
+                <li>Track mock examination scores over time</li>
+                <li>Delete your material at any time</li>
+            </ul>
+            <p class="auth-aside-note">By creating an account you agree that extracted document text is processed
+                by Google's Gemini API to generate your study resources.</p>
+        </aside>
+    </div>
+</main>
+
+<footer th:replace="~{layout/base :: footer}"></footer>
+</body>
+</html>

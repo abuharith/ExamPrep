@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Study from your own course material')}"></head>
+<body>
+<header th:replace="~{layout/base :: nav}"></header>
+
+<main id="main">
+    <section class="hero">
+        <div class="container hero-inner">
+            <div class="hero-copy">
+                <p class="eyebrow">Document-based examination preparation</p>
+                <h1>Turn your course material into an exam-ready study plan.</h1>
+                <p class="lede">
+                    Upload lecture notes, handouts or textbook chapters. ExamPrep extracts the content and
+                    builds structured revision notes, flashcards, practice questions and a timed mock
+                    examination — all grounded in the material you actually study.
+                </p>
+                <div class="hero-actions" th:if="${!signedIn}">
+                    <a class="btn btn-primary" th:href="@{/register}">Create your account</a>
+                    <a class="btn btn-secondary" th:href="@{/login}">Sign in</a>
+                </div>
+                <div class="hero-actions" th:if="${signedIn}">
+                    <a class="btn btn-primary" th:href="@{/dashboard}">Go to your dashboard</a>
+                </div>
+                <p class="hero-note">PDF, Word, PowerPoint, Markdown, text, RTF and OpenDocument · up to 25 MB</p>
+            </div>
+            <div class="hero-preview" aria-hidden="true">
+                <div class="preview-top">
+                    <span class="preview-dot"></span>
+                    <span class="preview-title">Cell Biology · Lecture 4</span>
+                </div>
+                <div class="preview-section">
+                    <span class="preview-label">Overview</span>
+                    <span class="preview-line w-90"></span>
+                    <span class="preview-line w-70"></span>
+                </div>
+                <div class="preview-grid">
+                    <div class="preview-tile">
+                        <span class="preview-label">Topics</span>
+                        <span class="preview-line w-80"></span>
+                        <span class="preview-line w-60"></span>
+                    </div>
+                    <div class="preview-tile">
+                        <span class="preview-label">Flashcards</span>
+                        <span class="preview-line w-70"></span>
+                        <span class="preview-line w-50"></span>
+                    </div>
+                </div>
+                <div class="preview-tile preview-exam">
+                    <span class="preview-label">Mock examination</span>
+                    <span class="preview-timer">24:18</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="section-band">
+        <div class="container">
+            <h2>How it works</h2>
+            <ol class="steps">
+                <li class="step">
+                    <span class="step-number">01</span>
+                    <h3>Upload your material</h3>
+                    <p>Add a lecture PDF, presentation, Word document or revision handout. Text is extracted
+                        with page, slide and section references kept intact.</p>
+                </li>
+                <li class="step">
+                    <span class="step-number">02</span>
+                    <h3>Generate a study package</h3>
+                    <p>Gemini analyses your material and produces an overview, topics, revision notes, a
+                        glossary, formulas, flashcards and practice questions.</p>
+                </li>
+                <li class="step">
+                    <span class="step-number">03</span>
+                    <h3>Practise and check yourself</h3>
+                    <p>Sit a timed mock examination, review explanations for every answer, and ask the
+                        tutor to explain anything that is still unclear.</p>
+                </li>
+            </ol>
+        </div>
+    </section>
+
+    <section class="container section">
+        <div class="section-heading">
+            <h2>Built for focused revision</h2>
+            <p class="muted">Everything is tied back to the material you uploaded, with source references you can check.</p>
+        </div>
+        <div class="grid grid-2 benefits">
+            <article class="benefit">
+                <h3>Your material, not generic notes</h3>
+                <p>Summaries, definitions and questions are generated from your own documents. Citations point
+                    to the page, slide or section they came from.</p>
+            </article>
+            <article class="benefit">
+                <h3>Practice that feels like the real exam</h3>
+                <p>Timed mock examinations with question navigation, automatic scoring for objective questions
+                    and an explanation for every answer.</p>
+            </article>
+            <article class="benefit">
+                <h3>A tutor that knows the source</h3>
+                <p>Ask follow-up questions and the tutor answers from the relevant sections of your document,
+                    and says so when the material does not cover something.</p>
+            </article>
+            <article class="benefit">
+                <h3>Private by design</h3>
+                <p>Your documents are stored outside the public web root, every request checks ownership, and
+                    you can delete a document together with everything generated from it.</p>
+            </article>
+        </div>
+    </section>
+
+    <section class="container">
+        <div class="cta-band">
+            <div>
+                <h2>Start with the notes you already have.</h2>
+                <p class="muted">Create an account, upload one document and generate your first study package.</p>
+            </div>
+            <a class="btn btn-primary" th:href="@{/dashboard}" th:if="${signedIn}">Open dashboard</a>
+            <a class="btn btn-primary" th:href="@{/register}" th:unless="${signedIn}">Create your account</a>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{layout/base :: footer}"></footer>
+</body>
+</html>

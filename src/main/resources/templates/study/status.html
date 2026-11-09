@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Generating your study package')}"></head>
+<body>
+<header th:replace="~{layout/base :: nav}"></header>
+
+<main id="main" class="container page container-narrow"
+      th:attr="data-study-status=@{/api/study-packs/{id}/status(id=${status.studyPackId})},
+               data-study-ready=@{/study-packs/{id}(id=${status.studyPackId})}">
+    <p class="eyebrow">Study package</p>
+    <h1>Generating your study package</h1>
+    <p class="lede">ExamPrep is analysing your document and writing the notes, flashcards and questions. You can
+        leave this page — generation continues in the background.</p>
+
+    <section class="panel progress-panel" aria-live="polite">
+        <div class="progress-label">
+            <span id="study-progress-message"
+                  th:text="${status.message} ?: 'Queued for generation.'">Preparing the study material</span>
+            <span id="study-progress-percent" th:text="${status.progressPercent + '%'}">0%</span>
+        </div>
+        <div class="progress progress-lg">
+            <span class="progress-bar" id="study-progress-bar"
+                  th:style="${'width:' + status.progressPercent + '%'}"></span>
+        </div>
+        <p class="field-hint">This page updates automatically. Keep it open or return to your dashboard.</p>
+    </section>
+
+    <section class="panel" id="study-failed-panel" th:if="${status.status.name() == 'FAILED'}" role="alert">
+        <h2>Generation could not be completed</h2>
+        <p th:text="${status.failureReason} ?: 'The study package could not be generated.'">Generation failed.</p>
+        <div class="page-actions">
+            <a class="btn btn-secondary" th:href="@{/documents/{id}(id=${status.documentId})}">Back to document</a>
+        </div>
+    </section>
+
+    <div class="page-actions">
+        <a class="btn btn-ghost" th:href="@{/dashboard}">Return to dashboard</a>
+    </div>
+</main>
+
+<footer th:replace="~{layout/base :: footer}"></footer>
+<script th:src="@{/js/app.js}"></script>
+<script th:src="@{/js/status.js}"></script>
+</body>
+</html>

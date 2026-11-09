@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head(${document.filename})}"></head>
+<body>
+<header th:replace="~{layout/base :: nav}"></header>
+
+<main id="main" class="container page">
+    <div th:replace="~{layout/base :: aiBanner}"></div>
+
+    <p class="back-link"><a th:href="@{/documents}">← Document library</a></p>
+
+    <div class="page-head">
+        <div>
+            <p class="eyebrow">Document</p>
+            <h1 th:text="${document.filename}">lecture.pdf</h1>
+            <p class="item-meta">
+                <span class="status-pill"
+                      th:classappend="${'is-' + #strings.toLowerCase(document.status.name())}"
+                      th:text="${@fmt.label(document.status.name())}">Ready</span>
+                <span th:if="${document.pageCount > 0}" th:text="${document.pageCount + ' pages'}">12 pages</span>
+                <span th:if="${document.chunkCount > 0}" th:text="${document.chunkCount + ' source sections'}">40 sections</span>
+                <span th:text="${'Updated ' + @fmt.dateTime(document.updatedAt)}">Updated</span>
+            </p>
+        </div>
+        <div class="page-actions">
+            <form th:action="@{/documents/{id}/delete(id=${document.documentId})}" method="post"
+                  data-confirm="Delete this document and every study package generated from it? This cannot be undone.">
+                <button class="btn btn-danger btn-sm" type="submit">Delete document</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="notice notice-error" role="alert"
+         th:if="${document.status.name() == 'FAILED'}">
+        <strong>Text extraction failed.</strong>
+        <span th:text="${document.failureReason} ?: 'The document could not be read.'">The document could not be read.</span>
+        <span> Delete this document and try another file.</span>
+    </div>
+
+    <section class="panel" th:if="${document.status.name() != 'READY' and document.status.name() != 'FAILED'}"
+             th:attr="data-document-poll=@{/api/documents/{id}/status(id=${document.documentId})}"
+             aria-live="polite">
+        <div class="panel-head">
+            <h2>Preparing your document</h2>
+            <span class="status-pill is-processing">Processing</span>
+        </div>
+        <p id="document-status-message" class="muted"
+           th:text="${document.status.name() == 'UPLOADED' ? 'Queued for text extraction.' : 'Extracting text — this usually takes a few seconds.'}">
+            Extracting text…
+        </p>
+        <div class="progress"><span class="progress-bar indeterminate"></span></div>
+    </section>
+
+    <section class="panel" th:if="${document.status.name() == 'READY'}">
+        <div class="panel-head">
+            <h2>Generate a study package</h2>
+        </div>
+        <p class="muted">Choose how much material you want. Generation usually takes under a minute and runs in the
+            background.</p>
+        <form th:action="@{/documents/{id}/study-packs(id=${document.documentId})}" method="post" class="form generation-form">
+            <div class="form-grid">
+                <div class="field">
+                    <label for="language">Language</label>
+                    <select id="language" name="language">
+                        <option value="English" selected>English</option>
+                        <option value="Afrikaans">Afrikaans</option>
+                        <option value="French">French</option>
+                        <option value="German">German</option>
+                        <option value="Spanish">Spanish</option>
+                        <option value="Portuguese">Portuguese</option>
+                        <option value="Arabic">Arabic</option>
+                        <option value="isiZulu">isiZulu</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="academicLevel">Academic level</label>
+                    <select id="academicLevel" name="academicLevel">
+                        <option value="High school">High school</option>
+                        <option value="Undergraduate" selected>Undergraduate</option>
+                        <option value="Honours">Honours</option>
+                        <option value="Postgraduate">Postgraduate</option>
+                        <option value="Professional">Professional</option>
+                    </select>
+                </div>
+                <div class="field">
+                    <label for="examDate">Examination date <span class="optional">(optional)</span></label>
+                    <input id="examDate" name="examDate" type="date" th:attr="min=${today}">
+                </div>
+                <div class="field">
+                    <label for="practiceQuestionCount">Practice questions</label>
+                    <input id="practiceQuestionCount" name="practiceQuestionCount" type="number" min="4" max="20" value="8">
+                </div>
+                <div class="field">
+                    <label for="mockQuestionCount">Mock examination questions</label>
+                    <input id="mockQuestionCount" name="mockQuestionCount" type="number" min="5" max="25" value="10">
+                </div>
+                <div class="field">
+                    <label for="flashcardCount">Flashcards</label>
+                    <input id="flashcardCount" name="flashcardCount" type="number" min="4" max="30" value="12">
+                </div>
+                <div class="field">
+                    <label for="mockDurationMinutes">Examination duration (minutes)</label>
+                    <input id="mockDurationMinutes" name="mockDurationMinutes" type="number" min="5" max="180" value="30">
+                </div>
+            </div>
+            <p class="field-hint">Extracted text from this document is sent to Google's Gemini API to generate the
+                package. Generated content is educational assistance — check it against your course material.</p>
+            <button class="btn btn-primary" type="submit">Generate study package</button>
+        </form>
+    </section>
+
+    <section class="panel">
+        <div class="panel-head">
+            <h2>Study packages from this document</h2>
+        </div>
+        <div class="empty-state" th:if="${#lists.isEmpty(studyPacks)}">
+            <p>No study packages yet. Generate one above to start revising.</p>
+        </div>
+        <ul class="item-list" th:unless="${#lists.isEmpty(studyPacks)}">
+            <li class="item" th:each="pack : ${studyPacks}">
+                <div class="item-main">
+                    <a class="item-title" th:href="@{/study-packs/{id}(id=${pack.id})}" th:text="${pack.title}">Package</a>
+                    <span class="item-meta">
+                        <span th:text="${pack.flashcardCount + ' flashcards'}">12 flashcards</span>
+                        <span aria-hidden="true">·</span>
+                        <span th:text="${pack.practiceQuestionCount + ' practice questions'}">8 questions</span>
+                        <span aria-hidden="true">·</span>
+                        <span th:text="${@fmt.date(pack.createdAt)}">1 Jan 2026</span>
+                    </span>
+                </div>
+                <span class="status-pill"
+                      th:classappend="${'is-' + #strings.toLowerCase(pack.status.name())}"
+                      th:text="${@fmt.label(pack.status.name())}">Ready</span>
+            </li>
+        </ul>
+    </section>
+</main>
+
+<footer th:replace="~{layout/base :: footer}"></footer>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

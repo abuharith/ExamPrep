@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Documents')}"></head>
+<body>
+<header th:replace="~{layout/base :: nav}"></header>
+
+<main id="main" class="container page">
+    <div th:replace="~{layout/base :: aiBanner}"></div>
+
+    <div class="page-head">
+        <div>
+            <p class="eyebrow">Library</p>
+            <h1>Your study documents</h1>
+            <p class="muted">Upload lecture material, then turn it into a study package with notes, flashcards,
+                questions and a mock examination.</p>
+        </div>
+    </div>
+
+    <div class="notice notice-success" role="status" th:if="${successMessage}" th:text="${successMessage}"></div>
+    <div class="notice notice-error" role="alert" th:if="${errorMessage}" th:text="${errorMessage}"></div>
+
+    <section class="panel upload-panel" aria-labelledby="upload-heading">
+        <div class="panel-head">
+            <h2 id="upload-heading">Upload a document</h2>
+            <span class="muted" th:text="${'Maximum ' + maxUploadMb + ' MB per file'}">Maximum 25 MB</span>
+        </div>
+
+        <form id="upload-form" th:action="@{/documents/upload}" method="post" enctype="multipart/form-data"
+              class="upload-form">
+            <label class="dropzone" id="dropzone" for="file-input" tabindex="0">
+                <span class="dropzone-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="28" height="28" fill="none" stroke="currentColor"
+                         stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 16V4"></path>
+                        <path d="m7 9 5-5 5 5"></path>
+                        <path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"></path>
+                    </svg>
+                </span>
+                <span class="dropzone-title">Drop a file here or choose one</span>
+                <span class="dropzone-hint">PDF, DOCX, DOC, PPTX, PPT, TXT, Markdown, RTF, ODT or ODP</span>
+                <input id="file-input" name="file" type="file" class="visually-hidden"
+                       accept=".pdf,.docx,.doc,.pptx,.ppt,.txt,.md,.markdown,.rtf,.odt,.odp">
+            </label>
+            <div class="upload-row">
+                <p class="upload-selected" id="upload-selected">No file selected.</p>
+                <button class="btn btn-primary" type="submit" id="upload-submit">Upload document</button>
+            </div>
+            <div class="upload-progress" id="upload-progress" hidden>
+                <div class="progress"><span class="progress-bar" id="upload-progress-bar" style="width:0%"></span></div>
+                <p class="upload-progress-text" id="upload-progress-text">Uploading…</p>
+            </div>
+        </form>
+
+        <div id="upload-result" class="notice notice-info" role="status" hidden></div>
+        <p class="field-hint">Files are stored privately. Text extraction starts immediately and usually takes a
+            few seconds. Scanned PDFs without selectable text cannot be read yet.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="library-heading">
+        <div class="panel-head">
+            <h2 id="library-heading">Document library</h2>
+            <span class="muted" th:text="${#lists.size(documents) + ( #lists.size(documents) == 1 ? ' document' : ' documents')}">0 documents</span>
+        </div>
+
+        <div class="empty-state" th:if="${#lists.isEmpty(documents)}">
+            <h3>No documents yet</h3>
+            <p>Upload a lecture PDF or handout to begin. You can generate several study packages from the same document.</p>
+        </div>
+
+        <div class="table-wrap" th:unless="${#lists.isEmpty(documents)}">
+            <table class="data">
+                <thead>
+                <tr>
+                    <th scope="col">Document</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Extracted</th>
+                    <th scope="col">Uploaded</th>
+                    <th scope="col"><span class="visually-hidden">Actions</span></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="doc : ${documents}" th:attr="data-document-row=${doc.id}">
+                    <td>
+                        <a class="item-title" th:href="@{/documents/{id}(id=${doc.id})}"
+                           th:text="${doc.originalFilename}">lecture.pdf</a>
+                        <span class="item-meta" th:text="${#strings.toUpperCase(doc.extension) + ' · ' + @fmt.fileSize(doc.sizeBytes)}">PDF · 1 MB</span>
+                    </td>
+                    <td>
+                        <span class="status-pill"
+                              th:classappend="${'is-' + #strings.toLowerCase(doc.status.name())}"
+                              th:text="${@fmt.label(doc.status.name())}">Ready</span>
+                        <span class="status-detail" th:if="${doc.status.name() == 'FAILED' and doc.failureReason != null}"
+                              th:text="${doc.failureReason}">Extraction failed</span>
+                    </td>
+                    <td th:text="${doc.status.name() == 'READY' ? (doc.chunkCount + ' sections') : '—'}">—</td>
+                    <td th:text="${@fmt.date(doc.createdAt)}">1 Jan 2026</td>
+                    <td class="cell-action">
+                        <a class="text-link" th:href="@{/documents/{id}(id=${doc.id})}">Open</a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{layout/base :: footer}"></footer>
+<script th:src="@{/js/app.js}"></script>
+<script th:src="@{/js/upload.js}"></script>
+</body>
+</html>

@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Examination results')}"></head>
+<body>
+<header th:replace="~{layout/base :: nav}"></header>
+
+<main id="main" class="container page">
+    <p class="back-link"><a th:href="@{/study-packs/{id}(id=${packId})}">← Back to study package</a></p>
+
+    <div class="score-hero">
+        <div class="score-figure">
+            <span class="score-value" th:text="${result.percentage + '%'}">80%</span>
+            <span class="score-caption" th:text="${result.mode == 'MOCK' ? 'Mock examination' : 'Practice assessment'}">Mock examination</span>
+        </div>
+        <div class="score-detail">
+            <h1 th:text="${result.percentage >= 75 ? 'Strong result' : (result.percentage >= 50 ? 'A solid start' : 'More revision needed')}">
+                Strong result
+            </h1>
+            <p class="lede" th:text="${'You answered ' + result.score + ' of ' + result.totalQuestions + ' scored questions correctly.'}">
+                You answered 8 of 10 questions correctly.
+            </p>
+            <p class="muted">
+                <span th:text="${'Time taken: ' + @fmt.duration(result.durationSeconds)}">Time taken: 12 min</span>
+                <span aria-hidden="true">·</span>
+                <span th:text="${'Submitted ' + @fmt.dateTime(result.submittedAt)}">Submitted</span>
+            </p>
+        </div>
+    </div>
+
+    <section class="panel" th:if="${!#lists.isEmpty(result.revisionSuggestions)}">
+        <h2>Areas to revise next</h2>
+        <ul class="chip-list">
+            <li class="chip chip-accent" th:each="topic : ${result.revisionSuggestions}" th:text="${topic}">Topic</li>
+        </ul>
+    </section>
+
+    <section class="section">
+        <div class="section-head">
+            <h2>Answer review</h2>
+            <span class="muted" th:text="${#lists.size(result.reviews) + ' questions'}">10 questions</span>
+        </div>
+
+        <article class="review-item" th:each="review, iteration : ${result.reviews}"
+                 th:classappend="${review.correct ? 'is-correct' : 'is-incorrect'}">
+            <header class="review-head">
+                <span class="review-number" th:text="${'Q' + iteration.count}">Q1</span>
+                <span class="tag" th:classappend="${review.correct ? 'tag-success' : 'tag-danger'}"
+                      th:text="${review.correct ? 'Correct' : 'Incorrect'}">Correct</span>
+                <span class="muted" th:if="${!review.correct and review.type.name() == 'SHORT_ANSWER'}">
+                    Short answers are not scored automatically
+                </span>
+            </header>
+            <h3 th:text="${review.prompt}">Question</h3>
+            <ul class="option-list" th:if="${!#lists.isEmpty(review.options)}">
+                <li th:each="option : ${review.options}"
+                    th:classappend="${option == review.correctAnswer ? 'is-answer' : (option == review.submittedAnswer ? 'is-chosen' : '')}"
+                    th:text="${option}">Option</li>
+            </ul>
+            <dl class="review-answers">
+                <div>
+                    <dt>Your answer</dt>
+                    <dd th:text="${review.submittedAnswer} ?: 'Not answered'">Not answered</dd>
+                </div>
+                <div>
+                    <dt>Correct answer</dt>
+                    <dd th:text="${review.correctAnswer}">Correct</dd>
+                </div>
+            </dl>
+            <div class="explanation">
+                <p class="label-plain">Explanation</p>
+                <p th:text="${review.explanation}">Explanation</p>
+            </div>
+            <p class="source-line" th:if="${review.sourceReference != null}"
+               th:text="${'Source: ' + review.sourceReference}">Source: Page 3</p>
+        </article>
+    </section>
+
+    <div class="page-actions">
+        <a class="btn btn-secondary" th:href="@{/study-packs/{id}(id=${packId})}">Back to study package</a>
+        <a class="btn btn-primary" th:href="@{/study-packs/{id}/exam(id=${packId})}">Retake examination</a>
+    </div>
+</main>
+
+<footer th:replace="~{layout/base :: footer}"></footer>
+<script th:src="@{/js/app.js}"></script>
+</body>
+</html>

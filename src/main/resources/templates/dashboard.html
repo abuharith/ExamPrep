@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Dashboard')}"></head>
+<body>
+<header th:replace="~{layout/base :: nav}"></header>
+
+<main id="main" class="container page">
+    <div th:replace="~{layout/base :: aiBanner}"></div>
+
+    <div class="page-head">
+        <div>
+            <p class="eyebrow">Dashboard</p>
+            <h1 th:text="${'Good to see you, ' + studentName + '.'}">Welcome</h1>
+            <p class="muted">Review your material, continue a study package or sit another mock examination.</p>
+        </div>
+        <div class="page-actions">
+            <a class="btn btn-primary" th:href="@{/documents}">Upload document</a>
+        </div>
+    </div>
+
+    <section class="stats" aria-label="Study overview">
+        <div class="stat">
+            <span class="stat-value" th:text="${documentCount}">0</span>
+            <span class="stat-label">Documents</span>
+            <span class="stat-meta" th:text="${readyDocumentCount + ' ready to study'}">0 ready</span>
+        </div>
+        <div class="stat">
+            <span class="stat-value" th:text="${studyPackCount}">0</span>
+            <span class="stat-label">Study packages</span>
+            <span class="stat-meta">Generated from your material</span>
+        </div>
+        <div class="stat">
+            <span class="stat-value" th:text="${attemptCount}">0</span>
+            <span class="stat-label">Assessments taken</span>
+            <span class="stat-meta" th:text="${averageScore + '% average score'}">0% average</span>
+        </div>
+        <div class="stat">
+            <span class="stat-value" th:text="${flashcardReviewCount}">0</span>
+            <span class="stat-label">Flashcard sessions</span>
+            <span class="stat-meta">Completed reviews</span>
+        </div>
+    </section>
+
+    <div class="grid grid-2 dashboard-grid">
+        <section class="panel">
+            <div class="panel-head">
+                <h2>Recent documents</h2>
+                <a class="text-link" th:href="@{/documents}">All documents</a>
+            </div>
+            <div class="empty-state" th:if="${#lists.isEmpty(documents)}">
+                <p>No documents yet. Upload lecture notes or a handout to get started.</p>
+                <a class="btn btn-secondary btn-sm" th:href="@{/documents}">Upload your first document</a>
+            </div>
+            <ul class="item-list" th:unless="${#lists.isEmpty(documents)}">
+                <li class="item" th:each="doc : ${documents}">
+                    <div class="item-main">
+                        <a class="item-title" th:href="@{/documents/{id}(id=${doc.id})}"
+                           th:text="${doc.originalFilename}">lecture.pdf</a>
+                        <span class="item-meta">
+                            <span th:text="${@fmt.fileSize(doc.sizeBytes)}">1 MB</span>
+                            <span aria-hidden="true">·</span>
+                            <span th:text="${@fmt.date(doc.createdAt)}">1 Jan 2026</span>
+                        </span>
+                    </div>
+                    <span class="status-pill"
+                          th:classappend="${'is-' + #strings.toLowerCase(doc.status.name())}"
+                          th:text="${@fmt.label(doc.status.name())}">Ready</span>
+                </li>
+            </ul>
+        </section>
+
+        <section class="panel">
+            <div class="panel-head">
+                <h2>Recent study packages</h2>
+            </div>
+            <div class="empty-state" th:if="${#lists.isEmpty(studyPacks)}">
+                <p>Study packages you generate will appear here, ready to revisit at any time.</p>
+            </div>
+            <ul class="item-list" th:unless="${#lists.isEmpty(studyPacks)}">
+                <li class="item" th:each="pack : ${studyPacks}">
+                    <div class="item-main">
+                        <a class="item-title" th:href="@{/study-packs/{id}(id=${pack.id})}"
+                           th:text="${pack.title}">Study package</a>
+                        <span class="item-meta" th:text="${pack.documentFilename}">lecture.pdf</span>
+                    </div>
+                    <span class="status-pill"
+                          th:classappend="${'is-' + #strings.toLowerCase(pack.status.name())}"
+                          th:text="${pack.status.name() == 'READY' ? 'Ready' : @fmt.label(pack.status.name())}">Ready</span>
+                </li>
+            </ul>
+        </section>
+    </div>
+
+    <section class="panel">
+        <div class="panel-head">
+            <h2>Recent examination results</h2>
+        </div>
+        <div class="empty-state" th:if="${#lists.isEmpty(recentAttempts)}">
+            <p>No assessments completed yet. Open a study package and sit its mock examination when you are ready.</p>
+        </div>
+        <div class="table-wrap" th:unless="${#lists.isEmpty(recentAttempts)}">
+            <table class="data">
+                <thead>
+                <tr>
+                    <th scope="col">Assessment</th>
+                    <th scope="col">Score</th>
+                    <th scope="col">Time taken</th>
+                    <th scope="col">Submitted</th>
+                    <th scope="col"><span class="visually-hidden">Result</span></th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="attempt : ${recentAttempts}">
+                    <td th:text="${attempt.mode == 'MOCK' ? 'Mock examination' : 'Practice questions'}">Mock examination</td>
+                    <td>
+                        <strong th:text="${attempt.percentage + '%'}">80%</strong>
+                        <span class="muted" th:text="${'(' + attempt.score + '/' + attempt.totalQuestions + ')'}">(8/10)</span>
+                    </td>
+                    <td th:text="${@fmt.duration(attempt.durationSeconds)}">12 min</td>
+                    <td th:text="${@fmt.dateTime(attempt.submittedAt)}">9 Nov 2026</td>
+                    <td class="cell-action">
+                        <a class="text-link"
+                           th:href="@{/study-packs/{id}/attempts/{attempt}(id=${attempt.studyPackId},attempt=${attempt.id})}">
+                            Review
+                        </a>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<footer th:replace="~{layout/base :: footer}"></footer>
+</body>
+</html>

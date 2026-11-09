@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:fragment="head(title)">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title th:text="${title} + ' · ExamPrep'">ExamPrep</title>
+    <meta name="description" content="ExamPrep turns your course material into revision notes, flashcards, practice questions and mock examinations.">
+    <link rel="stylesheet" th:href="@{/css/app.css}">
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+</head>
+<body>
+
+<a class="skip-link" href="#main">Skip to content</a>
+
+<header class="site-header" th:fragment="nav">
+    <div class="container header-inner">
+        <a class="brand" th:href="@{/}" aria-label="ExamPrep home">
+            <span class="brand-mark" aria-hidden="true">EP</span>
+            <span class="brand-name">ExamPrep</span>
+        </a>
+        <nav class="site-nav" aria-label="Main navigation">
+            <th:block th:if="${studentName != null}">
+                <a th:href="@{/dashboard}">Dashboard</a>
+                <a th:href="@{/documents}">Documents</a>
+            </th:block>
+        </nav>
+        <div class="header-actions">
+            <th:block th:if="${studentName != null}">
+                <span class="student-chip" th:text="${studentName}">Student</span>
+                <form th:action="@{/logout}" method="post" class="inline-form">
+                    <button class="btn btn-ghost btn-sm" type="submit">Sign out</button>
+                </form>
+            </th:block>
+            <th:block th:if="${studentName == null}">
+                <a class="btn btn-ghost btn-sm" th:href="@{/login}">Sign in</a>
+                <a class="btn btn-primary btn-sm" th:href="@{/register}">Create account</a>
+            </th:block>
+        </div>
+    </div>
+</header>
+
+<div th:fragment="aiBanner" class="container">
+    <div class="notice notice-warn" role="status" th:if="${aiConfigured == false}">
+        <strong>Gemini is not configured on this server.</strong>
+        Study generation and the AI tutor are unavailable until a <code>GOOGLE_API_KEY</code> is set.
+    </div>
+</div>
+
+<footer class="site-footer" th:fragment="footer">
+    <div class="container footer-inner">
+        <p>ExamPrep builds study resources from material you upload. AI output is educational assistance,
+            not a substitute for your course material or your lecturer's guidance.</p>
+        <p class="footer-meta">
+            <a th:href="@{/privacy}">Privacy and data use</a>
+            <span aria-hidden="true">·</span>
+            <span>Extracted text is processed by Google's Gemini API.</span>
+        </p>
+    </div>
+</footer>
+
+</body>
+</html>

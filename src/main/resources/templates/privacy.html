@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{layout/base :: head('Privacy and data use')}"></head>
+<body>
+<header th:replace="~{layout/base :: nav}"></header>
+
+<main id="main" class="container page container-narrow">
+    <p class="eyebrow">Privacy</p>
+    <h1>How ExamPrep handles your material</h1>
+    <p class="lede">This page explains what happens to a document after you upload it.</p>
+
+    <section class="section">
+        <h2>What is stored</h2>
+        <p>ExamPrep stores your account details, the original file in private storage, the text extracted from it,
+            the study packages generated from that text, your practice answers, mock examination attempts and
+            tutor conversation. Uploaded files are never served from a public URL.</p>
+
+        <h2>How your material is processed</h2>
+        <p>Text extracted from your document is sent to Google's Gemini API so that the study package and tutor
+            answers can be generated. Only the extracted text needed for the current request is sent, together
+            with your study preferences. Your password and your API configuration are never sent to Gemini.</p>
+
+        <h2>What is not done</h2>
+        <p>ExamPrep does not use your documents for advertising, does not share them with other students, and does
+            not present invented material as if it came from your course. Generated content is educational
+            assistance and should always be checked against the original material.</p>
+
+        <h2>Deleting your material</h2>
+        <p>Deleting a document removes its stored file, its extracted text and every study package generated from
+            it, including flashcards, questions, attempts and tutor conversations. Deletion is immediate and cannot
+            be undone.</p>
+
+        <h2>Questions</h2>
+        <p>If you are running your own copy of ExamPrep, the person who deployed it is responsible for the Gemini
+            API account and for your institution's data policy.</p>
+    </section>
+
+    <a class="btn btn-secondary" th:href="@{/}">Back to ExamPrep</a>
+</main>
+
+<footer th:replace="~{layout/base :: footer}"></footer>
+</body>
+</html>
